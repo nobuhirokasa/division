@@ -1,0 +1,476 @@
+Sub Macro1()
+'今月の平日の初日を入力------------------------------------------------------------------------------------------------------
+Dim mdy As Date: mdy = #1/1/2019#
+'今月の最終日を入力---------------------------------------------------------------------------
+Dim kas As Date: kas = #1/31/2019#
+'左の人--------------------------------------------------------------------
+Dim left As Integer: left = 5
+Dim arr As Integer:
+'右の人数--------------------------------------------------------------------
+Dim right As Integer: right = 5
+'左の固定項目数-----------------------------------------------------
+Dim hold As Integer: hold = 4
+'右の固定項目数-----------------------------------------------------------
+Dim regC As Integer: regC = 4
+'出力をA1から縦と横をslideだけずらす
+Dim slide As Integer: slide = 2
+'----------------------------------------------
+Dim regu As Integer
+Dim rArr As Integer:
+Dim weekDay As Integer
+Dim all As Integer: all = left + right
+Dim q As Integer
+Dim m As Integer, n As Integer
+Dim i As Integer, j As Integer
+q = 1
+Dim x As Integer: x = 1
+Dim weekDayS As Integer
+Dim lefts As Integer: lefts = left + slide
+Dim both As Integer: both = all + slide
+Dim f As Integer: f = 1
+
+ActiveSheet.Range("A3").Value = mdy
+ActiveSheet.Range("A3").Interior.Color = RGB(169, 208, 142)
+ActiveSheet.Range("A4").Value = kas
+weekDay = Application.WorksheetFunction.NetworkDays(ActiveSheet.Range("A3").Value, ActiveSheet.Range("A4").Value)
+Range("A3:A" & weekDay + slide).NumberFormatLocal = "yyyy年m月d日"
+
+j = 4
+For i = 1 + slide To weekDay + 1
+    ActiveSheet.Range("A" & j).Value = Application.WorksheetFunction.WorkDay(ActiveSheet.Range("A" & i).Value, 1)
+    ActiveSheet.Range("A" & j).Interior.Color = RGB(169, 208, 142)
+    j = j + 1
+Next
+
+weekDayS = weekDay + slide
+For i = 1 + slide To weekDayS
+    ActiveSheet.Range("B" & i).Value = Application.WorksheetFunction.weekDay(ActiveSheet.Range("A" & i).Value, 1)
+Select Case ActiveSheet.Range("B" & i).Value
+Case 1
+    ActiveSheet.Range("B" & i).Value = "日曜日"
+Case 2
+    ActiveSheet.Range("B" & i).Value = "月曜日"
+Case 3
+    ActiveSheet.Range("B" & i).Value = "火曜日"
+Case 4
+    ActiveSheet.Range("B" & i).Value = "水曜日"
+Case 5
+    ActiveSheet.Range("B" & i).Value = "木曜日"
+Case 6
+    ActiveSheet.Range("B" & i).Value = "金曜日"
+Case 7
+    ActiveSheet.Range("B" & i).Value = "土曜日"
+End Select
+Next i
+If (weekDayS - 26 <= 1) Then
+For m = weekDayS + 1 To 26
+    For n = 1 To both
+        Cells(m, n).ClearContents
+        Cells(m, n).Interior.ColorIndex = xlNone
+    Next n
+Next m
+End If
+For m = slide + 1 To weekDayS
+    For n = both To both + 7
+        Cells(m, n).ClearContents
+        Cells(m, n).Interior.ColorIndex = xlNone
+    Next n
+Next m
+
+If left < 13 Then
+For m = 1 + slide To weekDayS
+    For n = 1 + slide To lefts
+        If q <= left Then
+            Cells(m, n).Value = q
+        ElseIf q = left + 1 Then
+            q = 1
+            Cells(m, n).Value = q
+        End If
+
+        If n <> lefts Then
+        q = q + 1
+        End If
+        Next n
+    Next m
+Else
+q = 13 - left
+For m = 1 + slide To weekDayS
+    For n = 1 + slide To lefts
+        If q <= left Then
+            Cells(m, n).Value = q
+        ElseIf q = left + 1 Then
+            q = 1
+            Cells(m, n).Value = q
+        End If
+        
+        If n <> lefts Then
+            q = q + 1
+        If q = 13 Then
+            q = 13 - left
+        End If
+        End If
+    Next n
+Next m
+End If
+
+q = 13
+If all >= 16 And left < 13 Then
+    For m = 1 + slide To weekDayS
+        For n = lefts + 1 To both
+            If q <= all Then
+                Cells(m, n).Value = q
+            ElseIf q = all + 1 Then
+                q = left + 1
+                Cells(m, n).Value = q
+            End If
+            If n <> both Then
+                q = q + 1
+            End If
+        Next n
+    Next m
+Else
+    For m = 1 + slide To weekDayS
+        For n = lefts + 1 To both
+            If q <= 12 + right Then
+                Cells(m, n).Value = q
+            End If
+            If q = 12 + right Then
+                Cells(m, n).Value = q
+                q = 12
+            End If
+            If n <> both Then
+                q = q + 1
+            End If
+        Next n
+    Next m
+End If
+
+
+    For m = 1 + slide To weekDayS
+        For n = 1 + slide To both
+            If Cells(m, n).Value <= hold And Cells(m, n).Value >= 1 Then
+                Cells(m, n).Interior.ColorIndex = 35
+            ElseIf Cells(m, n).Value >= 13 And Cells(m, n).Value <= (12 + regC) Then
+                Cells(m, n).Interior.ColorIndex = 36
+            Else: Cells(m, n).ClearContents
+                Cells(m, n).Interior.ColorIndex = xlNone
+            End If
+        Next n
+    Next m
+    
+'右の項目の固定は13,14,15,16定数で固定----------------------------------------------------
+q = hold + 1
+    For m = 1 + slide To weekDayS
+        For n = 1 + slide To both
+            If Cells(m, n).Value <> (hold - (hold - 3)) And Cells(m, n).Value <> (hold - (hold - 2)) And Cells(m, n).Value <> (hold - (hold - 1)) And Cells(m, n).Value <> hold And Cells(m, n).Value <> 13 And Cells(m, n).Value <> 14 And Cells(m, n).Value <> 15 And Cells(m, n).Value <> 16 And q <> 13 And q <> 14 And q <> 15 And q <> 16 Then
+                Cells(m, n).Value = q
+                q = q + 1
+            ElseIf q = 13 And Cells(m, n).Value <> (regC - (regC - 3)) And Cells(m, n).Value <> (regC - (regC - 2)) And Cells(m, n).Value <> (regC - (regC - 1)) And Cells(m, n).Value <> regC And Cells(m, n).Value <> 13 And Cells(m, n).Value <> 14 And Cells(m, n).Value <> 15 And Cells(m, n).Value <> 16 Then
+                q = q + regC
+                Cells(m, n).Value = q
+                q = q + 1
+            End If
+'34=Caseが１?33
+                If q = 34 Then
+                q = hold + 1
+            End If
+        Next n
+    Next m
+For m = 1 + slide To weekDayS
+    For n = 1 + slide To both
+        If m < (weekDayS + 1) And n < (both + 1) Then
+            Select Case Cells(m, n).Value
+'↓左の固定項目------------------------------------------------------------------
+            Case 1
+                Cells(m, n).Value = "床7を片付ける"
+            Case 2
+                Cells(m, n).Value = "デスク7を片付ける"
+            Case 3
+                Cells(m, n).Value = "ドア1を片付ける"
+            Case 4
+                Cells(m, n).Value = "ドア3を片付ける"
+'-----------------------------------------------------------------------------------------
+            Case 5
+                Cells(m, n).Value = "窓6を片付ける"
+            Case 6
+                Cells(m, n).Value = "棚1を片付ける"
+            Case 7
+                Cells(m, n).Value = "ロッカー4を片付ける"
+            Case 8
+                Cells(m, n).Value = "ブラインド1Lを片付ける"
+            Case 9
+                Cells(m, n).Value = "デスク6を片付ける"
+            Case 10
+                Cells(m, n).Value = "ブラインド4Lを片付ける"
+            Case 11
+                Cells(m, n).Value = "ゴミ箱Wを片付ける"
+            Case 12
+                Cells(m, n).Value = "ブラインド1Rを片付ける"
+'↓右の固定項目------------------------------------------------------------------------------
+            Case 13
+                Cells(m, n).Value = "ドア2を片付ける"
+                If n = lefts + 1 And m = 1 + slide Then
+                    m = m + 1
+                    n = lefts + 2
+                For i = 1 To (regC - 1)
+                    Cells(m, n).Value = 400
+                    m = m + 1
+                    n = n + 1
+                Next i
+                For i = 1 To (regC - 1)
+                    If n <= both Then
+                        Cells(m, n).Value = 900
+                        m = m + 1
+                        n = n + 1
+                End If
+                Next i
+                    m = 1 + slide
+                    n = lefts + 1
+                End If
+                If m = right + 1 + slide And n = lefts + 1 Then
+                    For i = 1 To (regC - 1)
+                        If m <= weekDayS Then
+                            Cells(m, n).Value = "床8を片付ける"
+                            m = m + 1
+                            n = n + 1
+                        End If
+                    Next i
+                    For i = 1 To (regC - 1)
+                        If m <= weekDayS And n <= both Then
+                            Cells(m, n).Value = 400
+                            m = m + 1
+                            n = n + 1
+                        End If
+                    Next i
+                        m = right + 1 + slide
+                        n = lefts + 1
+                        End If
+            Case 14
+                Cells(m, n).Value = "ドア4を片付ける"
+                If n = lefts + 2 And m = 1 + slide Then
+                m = m + 1
+                n = lefts + 3
+                For i = 1 To (regC - 1)
+                    If m <= weekDayS And n <= both Then
+                        Cells(m, n).Value = 300
+                        m = m + 1
+                        n = n + 1
+                End If
+                Next i
+            For i = 1 To (regC - 1)
+                If n <= both Then
+                    Cells(m, n).Value = 999
+                    m = m + 1
+                    n = n + 1
+                End If
+            Next i
+            m = 1 + slide
+            n = lefts + 2
+            End If
+            If m = right + slide And n = lefts + 1 Then
+                For i = 1 To (regC - 1)
+                    If m <= weekDayS Then
+                        Cells(m, n).Value = "デスク1を片付ける"
+                        m = m + 1
+                        n = n + 1
+                    End If
+                Next i
+            For i = 1 To (regC - 1)
+                If m <= weekDayS And n <= both Then
+                Cells(m, n).Value = 300
+                m = m + 1
+                n = n + 1
+            End If
+            Next i
+                m = right + slide
+                n = lefts + 1
+            End If
+            Case 15
+                Cells(m, n).Value = "ホワイトボードを片付ける"
+                If n = lefts + 3 And m = 1 + slide Then
+                    m = m + 1
+                    n = lefts + 4
+                For i = 1 To 3
+                    If m <= weekDayS And n <= both Then
+                        Cells(m, n).Value = 200
+                        m = m + 1
+                        n = n + 1
+                    End If
+                Next i
+                m = 1 + slide
+                n = lefts + 1
+            End If
+            If m = right - 1 + slide And n = lefts + 1 Then
+                For i = 1 To (regC - 1)
+                    If m <= weekDayS Then
+                        Cells(m, n).Value = "棚4を片付ける"
+                        m = m + 1
+                        n = n + 1
+                    End If
+                Next i
+                For i = 1 To (regC - 1)
+                    If m <= weekDayS And n <= both Then
+                        Cells(m, n).Value = 200
+                        m = m + 1
+                        n = n + 1
+                    End If
+                Next i
+                m = right - 1 + slide
+                n = lefts + 1
+                End If
+                If m = right + right - 1 + slide And n = lefts + 1 Then
+                    For i = 1 To (regC - 1)
+                        If m <= weekDayS Then
+                            Cells(m, n).Value = "椅子を片付ける"
+                        End If
+                        If m < weekDayS + 1 And n < both + 1 Then
+                            m = m + 1
+                            n = n + 1
+                        End If
+                    Next i
+                    m = right + right - 1 + slide
+                    n = lefts + 1
+                End If
+            Case 16
+                Cells(m, n).Value = "ゴミ箱Bを片付ける"
+                If n = lefts + 4 And m = 1 + slide Then
+                    m = m + 1
+                    n = lefts + 5
+                For i = 1 To (regC - 1)
+                    If n <= both Then
+                    Cells(m, n).Value = 100
+                    m = m + 1
+                    n = n + 1
+                End If
+                Next i
+                m = 1 + slide
+                n = lefts + 4
+                End If
+                If m = right - 2 + slide And n = lefts + 1 Then
+                    For i = 1 To (regC - 1)
+                        If m <= weekDayS Then
+                            Cells(m, n).Value = "ロッカー1を片付ける"
+                            m = m + 1
+                            n = n + 1
+                        End If
+                    Next i
+                    For i = 1 To (regC - 1)
+                        If m <= weekDayS And n <= both Then
+                            Cells(m, n).Value = 100
+                            m = m + 1
+                            n = n + 1
+                        End If
+                    Next i
+                    m = right - 2 + slide
+                    n = lefts + 1
+                End If
+                If m = right + right - 2 + slide And n = lefts + 1 Then
+                    For i = 1 To (regC - 1)
+                        Cells(m, n).Value = "PCを片付ける"
+                        If m < weekDayS And n < both Then
+                            m = m + 1
+                            n = n + 1
+                        End If
+                    Next i
+                    m = right + right - 2 + slide
+                    n = lefts + 1
+                End If
+'----------------------------------------------------------------------------
+            Case 17
+                Cells(m, n).Value = "窓5を片付ける"
+            Case 18
+                Cells(m, n).Value = "ブラインド3Lを片付ける"
+            Case 19
+                Cells(m, n).Value = "棚2を片付ける"
+            Case 20
+                Cells(m, n).Value = "ブラインド2Rを片付ける"
+            Case 21
+                Cells(m, n).Value = "デスク2を片付ける"
+            Case 22
+                Cells(m, n).Value = "デスク3を片付ける"
+            Case 23
+                Cells(m, n).Value = "棚3を片付ける"
+            Case 24
+                Cells(m, n).Value = "ロッカー3を片付ける"
+            Case 25
+                Cells(m, n).Value = "窓4を片付ける"
+            Case 26
+                Cells(m, n).Value = "デスク5を片付ける"
+            Case 27
+                Cells(m, n).Value = "ブラインド3Rを片付ける"
+            Case 28
+                Cells(m, n).Value = "デスク4を片付ける"
+            Case 29
+                Cells(m, n).Value = "ロッカー2を片付ける"
+            Case 30
+                If f = 1 Then
+                    Cells(m, n).Value = "床1を片付ける"
+                ElseIf f = 2 Then
+                    Cells(m, n).Value = "床2を片付ける"
+                ElseIf f = 3 Then
+                    Cells(m, n).Value = "床3を片付ける"
+                ElseIf f = 4 Then
+                    Cells(m, n).Value = "床4を片付ける"
+                ElseIf f = 5 Then
+                    Cells(m, n).Value = "床5を片付ける"
+                Else
+                    Cells(m, n).Value = "床6を片付ける"
+                End If
+                f = f + 1
+                If f = 7 Then
+                    f = 1
+                End If
+            Case 31
+                Cells(m, n).Value = "窓3を片付ける"
+            Case 32
+                Cells(m, n).Value = "窓1を片付ける"
+            Case 33
+                Cells(m, n).Value = "サーバー周りを片付ける"
+
+            Case 100
+                Cells(m, n).Value = "電話周りを片付ける"
+            Case 200
+                Cells(m, n).Value = "電話を片付ける2"
+            Case 300
+                Cells(m, n).Value = "電話1を片付ける"
+            Case 400
+                Cells(m, n).Value = "窓2を片付ける"
+            Case 500
+                Cells(m, n).Value = "ロッカー1を片付ける"
+            Case 600
+                Cells(m, n).Value = "棚4を片付ける"
+            Case 700
+                Cells(m, n).Value = "デスク1を片付ける"
+            Case 800
+                Cells(m, n).Value = "床8を片付ける"
+            Case 900
+                Cells(m, n).Value = "PCを片付ける"
+                If right >= 14 Then
+                    If m = 7 + slide And n = lefts + 7 Then
+                        m = right + 4 + slide
+                        For i = 1 To 3
+                            If m <= weekDayS Then
+                                Cells(m, n).Value = 900
+                                m = m + 1
+                                n = n + 1
+                            End If
+                        Next i
+                        For i = 1 To 3
+                            If m <= weekDayS Then
+                                Cells(m, n).Value = 999
+                                m = m + 1
+                                n = n + 1
+                            End If
+                        Next i
+                        m = 7
+                        n = left + 7
+                    End If
+                End If
+            Case 999
+                Cells(m, n).Value = "椅子を片付ける"
+            End Select
+        End If
+    Next n
+Next m
+End Sub
+
